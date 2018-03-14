@@ -1,4 +1,4 @@
-package org.shibayu36.jodatimefake
+package com.github.shibayu36.jodatimefake
 
 import org.scalatest.{FunSpec, Matchers}
 import org.joda.time.{DateTime, DateTimeZone}

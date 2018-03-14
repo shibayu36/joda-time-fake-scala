@@ -1,4 +1,4 @@
-package org.shibayu36.jodatimefake
+package com.github.shibayu36.jodatimefake
 
 import org.joda.time.{DateTime, DateTimeUtils}
 

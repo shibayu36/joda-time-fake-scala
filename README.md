@@ -8,7 +8,7 @@ Add dependency in your `build.sbt` as the following.
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.shibayu36" %% "joda-time-fake" % "0.0.1"
+  "com.github.shibayu36" %% "joda-time-fake" % "0.0.1"
 )
 ```
 
@@ -18,7 +18,7 @@ supported Scala versions are 2.11 and 2.12.
 ## Basic usage
 
 ```scala
-import org.shibayu36.jodatimefake.FakeTimer
+import com.github.shibayu36.jodatimefake.FakeTimer
 import org.joda.time.DateTime
 
 // fake by millis

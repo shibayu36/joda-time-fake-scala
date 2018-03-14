@@ -1,6 +1,6 @@
 name := "joda-time-fake"
 
-organization := "org.shibayu36"
+organization := "com.github.shibayu36"
 
 version := "0.0.1"
 
