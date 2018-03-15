@@ -52,6 +52,7 @@ object FakeTimer {
     fakeWithTimer(DateTime.parse(t).getMillis)(block)
 }
 
+/** FakeTimer class to advance time in fakeWithTimer */
 class FakeTimer(_currentMillis: Long) {
   private[this] var currentMillis = _currentMillis
 
