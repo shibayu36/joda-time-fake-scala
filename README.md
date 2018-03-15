@@ -51,3 +51,7 @@ FakeTimer.fakeWithTimer(1515974400000L) { t =>
     println(DateTime.now.toString) // 2018-01-15T00:00:03.000Z
 }
 ```
+
+## Caution
+
+This library doesn't support a parallel test by thread, because org.joda.time.DateTimeUtils uses shared static variables.  Use fork if you want to test in parallel.
