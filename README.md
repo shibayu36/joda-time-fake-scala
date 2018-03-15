@@ -1,4 +1,4 @@
-# joda-time-fake [![Build Status][travis-img]][travis]
+# joda-time-fake [![Build Status](https://travis-ci.org/shibayu36/joda-time-fake-scala.svg?branch=master)](https://travis-ci.org/shibayu36/joda-time-fake-scala)
 
 Provides utilities to fake current time gotten by [joda-time](http://www.joda.org/joda-time/).  This is useful for test.
 
@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-The library is available on [Maven Central][maven].  Currently,
+The library is available on [Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.shibayu36/joda-time-fake_2.12).  Currently,
 supported Scala versions are 2.11 and 2.12.
 
 ## Basic usage
