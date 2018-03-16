@@ -53,9 +53,7 @@ object FakeTimer {
 }
 
 /** FakeTimer class to advance time in fakeWithTimer */
-class FakeTimer(_currentMillis: Long) {
-  private[this] var currentMillis = _currentMillis
-
+class FakeTimer(private[this] var currentMillis: Long) {
   /** Advance time by millis */
   def tick(millis: Long): Unit = {
     currentMillis = currentMillis + millis
