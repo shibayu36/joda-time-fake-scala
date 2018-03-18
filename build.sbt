@@ -12,6 +12,14 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
+// Compilation
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-Xlint"
+)
+
 // Publishing
 publishMavenStyle := true
 publishArtifact in Test := false
