@@ -2,7 +2,7 @@ package com.github.shibayu36.jodatimefake
 
 import org.joda.time.{DateTime, DateTimeUtils}
 
-/** Provides utility methods to fake current time of [[org.joda.time.DateTime]].
+/** Provides utility methods to fake current time of org.joda.time.DateTime.
  *
  * ==Provided Methods==
  * <ul>
