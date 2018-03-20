@@ -8,7 +8,7 @@ Add dependency in your `build.sbt` as the following.
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.shibayu36" %% "joda-time-fake" % "0.0.1"
+  "com.github.shibayu36" %% "joda-time-fake" % "0.0.2"
 )
 ```
 
