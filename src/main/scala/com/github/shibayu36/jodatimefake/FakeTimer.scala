@@ -52,11 +52,11 @@ object FakeTimer {
    */
   def fake[T](timeMillis: Long)(block: => T): T = {
     val timer = new FakeTimer(timeMillis)
-    DateTimeUtils.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
+    ThreadLocalMillisProvider.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
     try {
       block
     } finally {
-      DateTimeUtils.setCurrentMillisSystem()
+      ThreadLocalMillisProvider.setCurrentMillisSystem()
     }
   }
 
@@ -84,11 +84,11 @@ object FakeTimer {
    */
   def fakeWithTimer[T](timeMillis: Long)(block: FakeTimer => T): T = {
     val timer = new FakeTimer(timeMillis)
-    DateTimeUtils.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
+    ThreadLocalMillisProvider.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
     try {
       block(timer)
     } finally {
-      DateTimeUtils.setCurrentMillisSystem()
+      ThreadLocalMillisProvider.setCurrentMillisSystem()
     }
   }
 
@@ -113,4 +113,34 @@ class FakeTimer(private[this] var currentMillis: Long) {
 
 private[jodatimefake] class FakeTimerMillisProvider(timer: FakeTimer) extends DateTimeUtils.MillisProvider {
   def getMillis(): Long = timer.getMillis()
+}
+
+private[jodatimefake] object ThreadLocalMillisProvider extends DateTimeUtils.MillisProvider {
+    private val systemMillisProvider: DateTimeUtils.MillisProvider = new DateTimeUtils.MillisProvider() {
+        override def getMillis(): Long = System.currentTimeMillis();
+    }
+
+    private[this] val local: ThreadLocal[DateTimeUtils.MillisProvider] = new ThreadLocal[DateTimeUtils.MillisProvider]() {
+        override def initialValue(): DateTimeUtils.MillisProvider = {
+            return systemMillisProvider;
+        }
+    }
+
+    def setCurrentMillisSystem() = {
+        install()
+        local.set(systemMillisProvider)
+    }
+
+    def setCurrentMillisProvider(millisProvider: DateTimeUtils.MillisProvider) = {
+        install()
+        local.set(millisProvider)
+    }
+
+    def clear() = local.remove()
+
+    def current(): DateTimeUtils.MillisProvider = local.get()
+
+    private[this] def install() = DateTimeUtils.setCurrentMillisProvider(ThreadLocalMillisProvider)
+
+    override def getMillis(): Long = local.get().getMillis()
 }
