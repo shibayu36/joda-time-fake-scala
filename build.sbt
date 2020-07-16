@@ -7,7 +7,7 @@ crossScalaVersions := Seq("2.11.12", "2.12.4", "2.13.3")
 
 libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9.9",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+  "org.scalatest" %% "scalatest" % "3.2.0" % "test"
 )
 
 // Compilation
