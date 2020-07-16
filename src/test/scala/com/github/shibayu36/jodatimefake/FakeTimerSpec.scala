@@ -1,9 +1,11 @@
 package com.github.shibayu36.jodatimefake
 
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
+
 import org.joda.time.{DateTime, DateTimeZone}
 
-class FakeTimerSpec extends FunSpec with Matchers {
+class FakeTimerSpec extends AnyFunSpec with Matchers {
   val tz = DateTimeZone.forID("Asia/Tokyo")
 
   describe("FakeTimer.fake") {

@@ -112,5 +112,5 @@ class FakeTimer(private[this] var currentMillis: Long) {
 }
 
 private[jodatimefake] class FakeTimerMillisProvider(timer: FakeTimer) extends DateTimeUtils.MillisProvider {
-  def getMillis(): Long = timer.getMillis
+  def getMillis(): Long = timer.getMillis()
 }

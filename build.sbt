@@ -2,12 +2,12 @@ name := "joda-time-fake"
 
 organization := "com.github.shibayu36"
 
-scalaVersion := "2.12.4"
-crossScalaVersions := Seq("2.11.12", "2.12.4")
+scalaVersion := "2.13.3"
+crossScalaVersions := Seq("2.11.12", "2.12.4", "2.13.3")
 
 libraryDependencies ++= Seq(
-  "joda-time" % "joda-time" % "2.9.9",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+  "joda-time" % "joda-time" % "2.10.6",
+  "org.scalatest" %% "scalatest" % "3.2.0" % "test"
 )
 
 // Compilation
