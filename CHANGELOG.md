@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3 (2020-07-17)
+
+* Support for Scala 2.13
+
 ## 0.0.2 (2018-03-21)
 
 * The feature has not changed
