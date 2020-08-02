@@ -148,7 +148,7 @@ private[jodatimefake] object DynamicMillisProvider extends DateTimeUtils.MillisP
 object Implicits {
   implicit class RichExecutionContext(ec: ExecutionContext) {
     def withFakeTimer: ExecutionContext = new ExecutionContext {
-      override def execute(task: Runnable) {
+      override def execute(task: Runnable): Unit = {
         val copyValue = DynamicMillisProvider.get
         ec.execute(new Runnable {
           override def run = {
@@ -158,7 +158,7 @@ object Implicits {
         })
       }
 
-      override def reportFailure(cause: Throwable): Unit = ec.reportFailure _
+      override def reportFailure(cause: Throwable): Unit = ec.reportFailure(cause)
     }
   }
 }
