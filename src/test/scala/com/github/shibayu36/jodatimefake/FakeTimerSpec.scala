@@ -3,9 +3,9 @@ package com.github.shibayu36.jodatimefake
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent._
-import org.scalatest.{FunSpec, Matchers}
 import org.joda.time.{DateTime, DateTimeZone}
+
+import scala.concurrent._
 
 class FakeTimerSpec extends AnyFunSpec with Matchers {
   val tz = DateTimeZone.forID("Asia/Tokyo")
