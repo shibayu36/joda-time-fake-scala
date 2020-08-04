@@ -5,6 +5,8 @@ import org.scalatest.matchers.should.Matchers
 
 import org.joda.time.{DateTime, DateTimeZone}
 
+import scala.concurrent._
+
 class FakeTimerSpec extends AnyFunSpec with Matchers {
   val tz = DateTimeZone.forID("Asia/Tokyo")
 
@@ -80,6 +82,79 @@ class FakeTimerSpec extends AnyFunSpec with Matchers {
         DateTime.now(tz).toString shouldBe "2018-03-02T12:34:56.000+09:00"
         t.tick(60 * 1000)
         DateTime.now(tz).toString shouldBe "2018-03-02T12:35:56.000+09:00"
+      }
+    }
+  }
+
+  describe("Parallel execution") {
+    import java.util.concurrent.Executors
+    import scala.concurrent.ExecutionContext
+
+    import Implicits._
+
+    implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(3)).withFakeTimer
+
+    describe("FakeTimer.fake") {
+      it("Can run in multi-threaded") {
+        def runThread(msec: Int) = Future {
+          FakeTimer.fake(1515974400000L) {
+            Thread.sleep(msec)
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:00:00.000+09:00"
+          }
+        }
+
+        Await.result(runThread(100) zip runThread(200), duration.Duration.Inf)
+      }
+
+      it("Can run in nested-threaded") {
+        def runThread(msec: Int) = Future {
+          FakeTimer.fake(1515974500000L) {
+            Thread.sleep(msec)
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:01:40.000+09:00"
+            val f = Future {
+              DateTime.now(tz).toString shouldBe "2018-01-15T09:01:40.000+09:00"
+            }
+            Await.result(f, duration.Duration.Inf)
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:01:40.000+09:00"
+          }
+        }
+
+        Await.result(runThread(100) zip runThread(200), duration.Duration.Inf)
+        Await.result(runThread(100) zip runThread(200), duration.Duration.Inf)
+      }
+    }
+
+    describe("FakeTimer.fakeWithTimer") {
+      it("Can run in multi-threaded") {
+        def runThread(msec: Int) = Future {
+          Thread.sleep(msec)
+          FakeTimer.fakeWithTimer(1515974400000L) { t =>
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:00:00.000+09:00"
+            t.tick(2000)
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:00:02.000+09:00"
+          }
+        }
+
+        Await.result(runThread(100) zip runThread(200), duration.Duration.Inf)
+      }
+
+      it("Can run in nested-threaded") {
+        def runThread(msec: Int) = Future {
+          Thread.sleep(msec)
+          FakeTimer.fakeWithTimer(1515974500000L) { t =>
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:01:40.000+09:00"
+            t.tick(2000)
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:01:42.000+09:00"
+            val f = Future {
+              DateTime.now(tz).toString shouldBe "2018-01-15T09:01:42.000+09:00"
+            }
+            Await.result(f, duration.Duration.Inf)
+            DateTime.now(tz).toString shouldBe "2018-01-15T09:01:42.000+09:00"
+          }
+        }
+
+        Await.result(runThread(100) zip runThread(200), duration.Duration.Inf)
+        Await.result(runThread(100) zip runThread(200), duration.Duration.Inf)
       }
     }
   }

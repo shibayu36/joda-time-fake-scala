@@ -1,6 +1,8 @@
 package com.github.shibayu36.jodatimefake
 
 import org.joda.time.{DateTime, DateTimeUtils}
+import scala.util.DynamicVariable
+import scala.concurrent.ExecutionContext
 
 /** Provides utility methods to fake current time of org.joda.time.DateTime.
  *
@@ -52,11 +54,11 @@ object FakeTimer {
    */
   def fake[T](timeMillis: Long)(block: => T): T = {
     val timer = new FakeTimer(timeMillis)
-    DateTimeUtils.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
+    DynamicDateTimeUtils.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
     try {
       block
     } finally {
-      DateTimeUtils.setCurrentMillisSystem()
+      DynamicDateTimeUtils.setCurrentMillisSystem()
     }
   }
 
@@ -84,11 +86,11 @@ object FakeTimer {
    */
   def fakeWithTimer[T](timeMillis: Long)(block: FakeTimer => T): T = {
     val timer = new FakeTimer(timeMillis)
-    DateTimeUtils.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
+    DynamicDateTimeUtils.setCurrentMillisProvider(new FakeTimerMillisProvider(timer))
     try {
       block(timer)
     } finally {
-      DateTimeUtils.setCurrentMillisSystem()
+      DynamicDateTimeUtils.setCurrentMillisSystem()
     }
   }
 
@@ -113,4 +115,50 @@ class FakeTimer(private[this] var currentMillis: Long) {
 
 private[jodatimefake] class FakeTimerMillisProvider(timer: FakeTimer) extends DateTimeUtils.MillisProvider {
   def getMillis(): Long = timer.getMillis()
+}
+
+private[jodatimefake] object SystemMillisProvider extends DateTimeUtils.MillisProvider {
+  def getMillis(): Long = System.currentTimeMillis
+}
+
+private[jodatimefake] object DynamicDateTimeUtils {
+  def setCurrentMillisSystem() = {
+      install()
+      DynamicMillisProvider.set(SystemMillisProvider)
+  }
+
+  def setCurrentMillisProvider(millisProvider: DateTimeUtils.MillisProvider) = {
+      install()
+      DynamicMillisProvider.set(millisProvider)
+  }
+
+  private def install() = DateTimeUtils.setCurrentMillisProvider(DynamicMillisProvider)
+}
+
+private[jodatimefake] object DynamicMillisProvider extends DateTimeUtils.MillisProvider {
+  private val local = new DynamicVariable[DateTimeUtils.MillisProvider](SystemMillisProvider)
+
+  def get = local.value
+
+  def set(millisProvider: DateTimeUtils.MillisProvider) = local.value_=(millisProvider)
+
+  override def getMillis(): Long = local.value.getMillis
+}
+
+object Implicits {
+  implicit class RichExecutionContext(ec: ExecutionContext) {
+    def withFakeTimer: ExecutionContext = new ExecutionContext {
+      override def execute(task: Runnable): Unit = {
+        val copyValue = DynamicMillisProvider.get
+        ec.execute(new Runnable {
+          override def run = {
+            DynamicMillisProvider.set(copyValue)
+            task.run
+          }
+        })
+      }
+
+      override def reportFailure(cause: Throwable): Unit = ec.reportFailure(cause)
+    }
+  }
 }

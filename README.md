@@ -52,6 +52,48 @@ FakeTimer.fakeWithTimer(1515974400000L) { t =>
 }
 ```
 
-## Caution
+## Usage in parallel test by thread
 
-This library doesn't support a parallel test by thread, because org.joda.time.DateTimeUtils uses shared static variables.  Use fork if you want to test in parallel.
+By extending `ExecutionContext` with `withFakeTimer` method, you can use `FakeTimer` in parallel test.
+
+```scala
+import com.github.shibayu36.jodatimefake.FakeTimer
+import com.github.shibayu36.jodatimefake.Implicits._
+import org.joda.time.DateTime
+import java.util.concurrent.Executors
+import scala.concurrent._
+
+// If you use in parallel test, extend ExecutionContext with withFakeTimer method
+implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(3)).withFakeTimer
+
+// The usage is the same as in Basic Usage
+val f1 = Future {
+    // fake by millis
+    val result = FakeTimer.fake(1515974400000L) {
+        println(DateTime.now.toString) // 2018-01-15T00:00:00.000Z
+        "hoge"
+    }
+
+    // current time is restored after block
+    println(DateTime.now.toString) // current time is printed
+
+    // You can get the value returned from block
+    println(result) // hoge
+}
+
+val f2 = Future {
+    FakeTimer.fake(1515974400000L) {
+        println(DateTime.now.toString) // 2018-01-15T00:00:00.000Z
+        t.tick(3000) // Advance time by 3000ms
+        val f = Future {
+            // Time is inherited from the parent thread
+            println(DateTime.now.toString) // 2018-01-15T00:00:03.000Z
+        }
+        Await.result(f, duration.Duration.Inf)
+        println(DateTime.now.toString) // 2018-01-15T00:00:03.000Z
+    }
+}
+
+println(DateTime.now.toString) // current time is printed
+Await.result(f1 zip f2, duration.Duration.Inf)
+```
